@@ -1,4 +1,4 @@
-## S3proxy - serve S3 private files simply
+## S3proxy - serve S3 files simply
 
 S3proxy is a simple flask-based REST web application which can expose files (keys) stored in the AWS Simple Storage Service (S3) via a simple REST api. 
 
