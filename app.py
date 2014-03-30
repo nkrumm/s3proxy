@@ -17,16 +17,6 @@ import yaml
 app = Flask(__name__)
 cache = SimpleCache()
 
-# load AWS credentials and bucket
-config = yaml.load(open("config.yaml",'r'))
-conn = S3Connection(config["AWS_ACCESS_KEY_ID"], config["AWS_SECRET_ACCESS_KEY"])
-bucket = conn.get_bucket(config["bucket_name"])
-
-# Load the rewirte rules:
-for name, rule in config["rewrite_rules"].iteritems():
-    config["rewrite_rules"][name]["r"] = re.compile(rule["from"])
-
-
 def apply_rewrite_rules(input_str):
     for name, rule in config["rewrite_rules"].iteritems():
         input_str = rule["r"].sub(rule["to"], input_str)
@@ -85,6 +75,16 @@ def get_file(url):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true", default=False)
+    parser.add_argument("--config", "-c", action="store", default="config.yaml")
     args = parser.parse_args()
+
+    # load AWS credentials and bucket
+    config = yaml.load(open(args.config,'r'))
+    conn = S3Connection(config["AWS_ACCESS_KEY_ID"], config["AWS_SECRET_ACCESS_KEY"])
+    bucket = conn.get_bucket(config["bucket_name"])
+
+    # Load the rewrite rules:
+    for name, rule in config["rewrite_rules"].iteritems():
+        config["rewrite_rules"][name]["r"] = re.compile(rule["from"])
 
     app.run(debug=args.debug)

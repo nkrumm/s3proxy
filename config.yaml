@@ -1,0 +1,9 @@
+
+AWS_ACCESS_KEY_ID: ''
+AWS_SECRET_ACCESS_KEY: ''
+bucket_name: ''
+
+rewrite_rules:
+    bai_rule:
+        from: ".bam.bai$"
+        to: ".bai"
