@@ -1,18 +1,14 @@
 from flask import Flask
 from flask import Response
-from flask import stream_with_context
 from flask import request
 from werkzeug.datastructures import Headers
 from werkzeug.contrib.cache import SimpleCache
 from boto.s3.connection import S3Connection
-from boto.s3.connection import Location
 from boto.s3.key import Key
-import boto
-import os
-import re
-import requests
 import argparse
 import yaml
+import os
+import re
 
 app = Flask(__name__)
 cache = SimpleCache()
