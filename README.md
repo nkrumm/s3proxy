@@ -33,13 +33,51 @@ Finally, I highly recommend you create a separate [IAM role][iam_roles] in AWS w
    - Limited support for simple url-rewriting where necessary.
    - Uses the werkzeug [`SimpleCache` module][simplecache] to cache S3 object identifiers (but not data) in order to reduce latency and lookup times.
 
-### Setup and Requirements
-To run S3proxy, you will need both the [Flask][flask] and [boto][boto] python libraries installed. 
+### Usage
+
+#### Requirements
+To run S3proxy, you will need:
+   - [Flask][flask]
+   - [boto][boto]
+   - [PyYAML][pyyaml]
+   - An Amazon AWS account and keys with appropriate S3 access
+
+#### Installation/Configuration
+At the moment, there is no installation. Simply put your AWS keys and bucket name into the config.yaml file:
+
+```yaml
+AWS_ACCESS_KEY_ID: ''
+AWS_SECRET_ACCESS_KEY: ''
+bucket_name: ''
+```
+
+You may also optionally specify a number of "rewrite" rules. These are simple pairs of a regular expression and a replacement string which can be used to internally redirect (Note, the API does not actually currently send a REST 3XX redirect header) file paths. The example in the config.yaml file reads:
+
+```yaml
+rewrite_rules:
+    bai_rule:
+        from: ".bam.bai$"
+        to: ".bai"
+```
+
+... which will match all url/filenames ending with ".bam.bai" and rewrite this to ".bai". 
+
+If you do not wish to use any rewrite_rules, simply leave this commented out.
+
+#### Testing the server in development mode:
+Once you have filled out the config.yaml file, you can test out S3proxy simply by running on the command line:
+
+    python app.py
+
+As suggested above, running using the built-in flask server is not recommended for anything other than debugging. Refer to [these deployment options][wsgi_server] for instructions on how to set up a flask applicaiton in a WSGI framework.
+
+#### Options
+If you wish to see more debug-level output (headers, etc.), use the `--debug` option. You may also specify a yaml configuration file to load using the `--config` parameter.
 
 ### Future development
    - Implement HTTP Basic Authentication to provide some level of security.
    - Implement other error codes and basic REST responses. 
-   - Add ability to log to a file and specify a `--log-level`
+   - Add ability to log to a file and specify a `--log-level` (use the Python logging module)
 
 
 [boto]: http://boto.readthedocs.org/
