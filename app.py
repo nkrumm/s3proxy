@@ -80,7 +80,7 @@ if __name__ == '__main__':
     bucket = conn.get_bucket(config["bucket_name"])
 
     # Load the rewrite rules:
-    for name, rule in config["rewrite_rules"].iteritems():
+    for name, rule in config.get("rewrite_rules", {}).iteritems():
         config["rewrite_rules"][name]["r"] = re.compile(rule["from"])
 
     app.run(debug=args.debug)
