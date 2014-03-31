@@ -18,6 +18,8 @@ S3proxy simplifies access to private S3 objects. While S3 already provides [a co
 
 In fact, however, S3proxy was specifically designed to provide a compatability layer for viewing DNA sequencing data in(`.bam` files) using [IGV][igv]. While IGV already includes an interface for reading bam files from an HTTP endpoint, it does not support creating signed requests as required by the AWS S3 API (IGV does support HTTP Basic Authentication, a feature that I would like to include in S3proxy in the near future). Though it is in principal possible to provide a signed AWS-compatible URL to IGV, IGV will still not be able to create its own signed URLs necessary for accessing `.bai` index files, usually located in the same directory as the `.bam` file. Using S3proxy you can expose the S3 objects via a simplified HTTP API which IGV can understand and access directly.
 
+This project is in many ways similar to [S3Auth][s3auth], a hosted service which provides a much more complete API to a private S3 bucket. I wrote S3proxy as a faster, simpler solution-- and because requires a domain name and access to the `CNAME` record in order to function. If you want a more complete API (read: more than just GET/HEAD at the moment) should check them out!
+
 ### Important considerations and caveats
 S3proxy should not be used in production-level or open/exposed servers! There is currently no security provided by S3proxy (though I may add basic HTTP authentication later). Once given the AWS credentials, S3proxy will serve any path available to it. And, although I restrict requests to GET and HEAD only, I cannot currently guarantee that a determined person would not be able to execute a PUT/UPDATE/DELETE request using this service.
 
@@ -28,7 +30,11 @@ Finally, I highly recommend you create a separate [IAM role][iam_roles] in AWS w
 ### Features
    - Serves S3 file objects via standard GET request, optionally providing only a part of a file using the `byte-range` header. 
    - Easy to configure via a the `config.yaml` file-- S3 keys and bucket name is all you need!
+   - Limited support for simple url-rewriting where necessary.
    - Uses the werkzeug [`SimpleCache` module][simplecache] to cache S3 object identifiers (but not data) in order to reduce latency and lookup times.
+
+### Setup and Requirements
+To run S3proxy, you will need both the [Flask][flask] and [boto][boto] python libraries installed. 
 
 ### Future development
    - Implement HTTP Basic Authentication to provide some level of security.
@@ -42,4 +48,4 @@ Finally, I highly recommend you create a separate [IAM role][iam_roles] in AWS w
 [wsgi_server]: http://flask.pocoo.org/docs/deploying/
 [iam_roles]: http://aws.amazon.com/iam/
 [simplecache]: http://flask.pocoo.org/docs/patterns/caching/
-
+[s3auth]: http://www.s3auth.com/
