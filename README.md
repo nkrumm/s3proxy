@@ -20,13 +20,6 @@ In fact, however, S3proxy was specifically designed to provide a compatability l
 
 This project is in many ways similar to [S3Auth][s3auth], a hosted service which provides a much more complete API to a private S3 bucket. I wrote S3proxy as a faster, simpler solution-- and because requires a domain name and access to the `CNAME` record in order to function. If you want a more complete API (read: more than just GET/HEAD at the moment) should check them out!
 
-### Important considerations and caveats
-S3proxy should not be used in production-level or open/exposed servers! There is currently no security provided by S3proxy (though I may add basic HTTP authentication later). Once given the AWS credentials, S3proxy will serve any path available to it. And, although I restrict requests to GET and HEAD only, I cannot currently guarantee that a determined person would not be able to execute a PUT/UPDATE/DELETE request using this service.
-
-Additionally, all the usual recommendations for WSGI applications apply to S3cmd. Don't use the built-in flask debugging server for anything but testing and development! For more information about configuring a WSGI app see [this page][wsgi_server]
-
-Finally, I highly recommend you create a separate [IAM role][iam_roles] in AWS with limited access and permisisons to S3 only for use with S3proxy. 
-
 ### Features
    - Serves S3 file objects via standard GET request, optionally providing only a part of a file using the `byte-range` header. 
    - Easy to configure via a the `config.yaml` file-- S3 keys and bucket name is all you need!
@@ -69,10 +62,13 @@ Once you have filled out the config.yaml file, you can test out S3proxy simply b
 
     python app.py
 
-As suggested above, running using the built-in flask server is not recommended for anything other than debugging. Refer to [these deployment options][wsgi_server] for instructions on how to set up a flask applicaiton in a WSGI framework.
+*Note*: Running using the built-in flask server is not recommended for anything other than debugging. Refer to [these deployment options][wsgi_server] for instructions on how to set up a flask applicaiton in a WSGI framework.
 
 #### Options
 If you wish to see more debug-level output (headers, etc.), use the `--debug` option. You may also specify a yaml configuration file to load using the `--config` parameter.
+
+### Important considerations and caveats
+S3proxy should not be used in production-level or open/exposed servers! There is currently no security provided by S3proxy (though I may add basic HTTP authentication later). Once given the AWS credentials, S3proxy will serve any path available to it. And, although I restrict requests to GET and HEAD only, I cannot currently guarantee that a determined person would not be able to execute a PUT/UPDATE/DELETE request using this service. Finally, I highly recommend you create a separate [IAM role][iam_roles] in AWS with limited access and permisisons to S3 only for use with S3proxy. 
 
 ### Future development
    - Implement HTTP Basic Authentication to provide some level of security.
