@@ -18,7 +18,7 @@ S3proxy simplifies access to private S3 objects. While S3 already provides [a co
 
 In fact, however, S3proxy was specifically designed to provide a compatability layer for viewing DNA sequencing data in(`.bam` files) using [IGV][igv]. While IGV already includes an interface for reading bam files from an HTTP endpoint, it does not support creating signed requests as required by the AWS S3 API (IGV does support HTTP Basic Authentication, a feature that I would like to include in S3proxy in the near future). Though it is in principal possible to provide a signed AWS-compatible URL to IGV, IGV will still not be able to create its own signed URLs necessary for accessing `.bai` index files, usually located in the same directory as the `.bam` file. Using S3proxy you can expose the S3 objects via a simplified HTTP API which IGV can understand and access directly.
 
-This project is in many ways similar to [S3Auth][s3auth], a hosted service which provides a much more complete API to a private S3 bucket. I wrote S3proxy as a faster, simpler solution-- and because requires a domain name and access to the `CNAME` record in order to function. If you want a more complete API (read: more than just GET/HEAD at the moment) should check them out!
+This project is in many ways similar to [S3Auth][s3auth], a hosted service which provides a much more complete API to a private S3 bucket. I wrote S3proxy as a faster, simpler solution-- and because S3Auth requires a domain name and access to the `CNAME` record in order to function. If you want a more complete API (read: more than just GET/HEAD at the moment) should check them out!
 
 ### Features
    - Serves S3 file objects via standard GET request, optionally providing only a part of a file using the `byte-range` header. 
