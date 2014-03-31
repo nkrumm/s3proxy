@@ -64,7 +64,7 @@ rewrite_rules:
 
 If you do not wish to use any rewrite_rules, simply leave this commented out.
 
-#### Testing the server in development mode:
+#### Running S3cmd:
 Once you have filled out the config.yaml file, you can test out S3proxy simply by running on the command line:
 
     python app.py
@@ -81,6 +81,8 @@ If you wish to see more debug-level output (headers, etc.), use the `--debug` op
 
 
 [boto]: http://boto.readthedocs.org/
+[flask]: http://flask.pocoo.org/
+[pyyaml]: http://pyyaml.org/wiki/PyYAML
 [s3_api]: http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
 [igv]: http://www.broadinstitute.org/igv/home
 [wsgi_server]: http://flask.pocoo.org/docs/deploying/
