@@ -14,7 +14,7 @@ app = Flask(__name__)
 cache = SimpleCache()
 
 def apply_rewrite_rules(input_str):
-    for name, rule in config["rewrite_rules"].iteritems():
+    for name, rule in config.get("rewrite_rules", {}).iteritems():
         input_str = rule["r"].sub(rule["to"], input_str)
         print "applied rule", name
         print "new url", input_str
