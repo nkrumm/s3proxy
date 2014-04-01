@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import Response
 from flask import request
+from flask import stream_with_context
 from werkzeug.datastructures import Headers
 from werkzeug.contrib.cache import SimpleCache
 from boto.s3.connection import S3Connection
@@ -47,7 +48,7 @@ def head_file(url):
 def get_file(url):
     url = apply_rewrite_rules(url)
     range_header = request.headers.get('Range', None)
-    headers = Headers()
+    return_headers = Headers()
     S3Key = get_S3Key(url)
     try:
         size = S3Key.size
@@ -57,16 +58,25 @@ def get_file(url):
     if range_header:
         print "%s: %s (size=%d)" % (url, range_header, size)
         start_range, end_range = [int(x) for x in range_header.split("=")[1].split("-")]
-        data = S3Key.get_contents_as_string(headers={'Range' : "bytes=%d-%d" % (start_range, end_range)})
-        headers.add('Accept-Ranges', 'bytes')
-        headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(start_range, end_range, size))
-        headers.add('Content-Length', end_range-start_range+1)
-        return Response(data, 206, headers=headers, direct_passthrough=True)
+        get_headers = {'Range' : "bytes=%d-%d" % (start_range, end_range)}
+        return_headers.add('Accept-Ranges', 'bytes')
+        return_headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(start_range, end_range, size))
+        return_headers.add('Content-Length', end_range-start_range+1)
+        return_code = 206
     else:
         print "%s: all data (size=%d)" % (url, size)
-        data = S3Key.get_contents_as_string()
-        return Response(data, 200, headers=headers, direct_passthrough=True)
+        get_headers = {}
+        return_code = 200
 
+    S3Key.open_read(headers=get_headers)
+    def stream(S3Key):
+        while True:
+            data = S3Key.resp.read(S3Key.BufferSize)
+            if data:
+                yield data
+            else:
+                raise StopIteration
+    return Response(stream_with_context(stream(S3Key)), return_code, headers=return_headers, direct_passthrough=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
