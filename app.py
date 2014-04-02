@@ -6,6 +6,7 @@ from werkzeug.datastructures import Headers
 from werkzeug.contrib.cache import SimpleCache
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+from multiprocessing import Pool
 import argparse
 import yaml
 import os
@@ -17,8 +18,6 @@ cache = SimpleCache()
 def apply_rewrite_rules(input_str):
     for name, rule in config.get("rewrite_rules", {}).iteritems():
         input_str = rule["r"].sub(rule["to"], input_str)
-        print "applied rule", name
-        print "new url", input_str
     return input_str
 
 def get_S3Key(url):
@@ -57,7 +56,12 @@ def get_file(url):
 
     if range_header:
         print "%s: %s (size=%d)" % (url, range_header, size)
-        start_range, end_range = [int(x) for x in range_header.split("=")[1].split("-")]
+        _, range_header_values = range_header.split("=")
+        try:
+            start_range, end_range = [int(x) for x in range_header_values.split("-")]
+        except:
+            start_range = int(range_header_values.split("-")[0])
+            end_range = size # config.get("chunksize", 1048576*10)
         get_headers = {'Range' : "bytes=%d-%d" % (start_range, end_range)}
         return_headers.add('Accept-Ranges', 'bytes')
         return_headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(start_range, end_range, size))
@@ -67,6 +71,9 @@ def get_file(url):
         print "%s: all data (size=%d)" % (url, size)
         get_headers = {}
         return_code = 200
+
+    #if size > config["chunksize"]:
+    #    pool = Pool(processes=config["n_threads"])
 
     S3Key.open_read(headers=get_headers)
     def stream(S3Key):
@@ -93,4 +100,17 @@ if __name__ == '__main__':
     for name, rule in config.get("rewrite_rules", {}).iteritems():
         config["rewrite_rules"][name]["r"] = re.compile(rule["from"])
 
-    app.run(debug=args.debug)
+    if args.debug:
+        app.run(debug=args.debug)
+    else:
+        # from gevent.wsgi import WSGIServer
+        # from gevent import monkey; monkey.patch_all()
+        # http_server = WSGIServer(('', 5000), app)
+        # http_server.serve_forever()
+        from tornado.wsgi import WSGIContainer
+        from tornado.httpserver import HTTPServer
+        from tornado.ioloop import IOLoop
+    
+        http_server = HTTPServer(WSGIContainer(app))
+        http_server.listen(5000)
+        IOLoop.instance().start()

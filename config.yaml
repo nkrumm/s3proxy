@@ -3,6 +3,8 @@ AWS_ACCESS_KEY_ID: ''
 AWS_SECRET_ACCESS_KEY: ''
 bucket_name: ''
 
+n_threads: 4
+chunksize: 1048576
 # rewrite_rules:
 #     bai_rule:
 #         from: ".bam.bai$"
